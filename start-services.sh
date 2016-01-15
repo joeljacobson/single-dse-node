@@ -34,7 +34,7 @@ NODE_OPTS=$1
     # check if cassandra is present
     if [ ! -f dse.tar.gz ] ; then
     echo "dse $VERSION not found, downloading now..."
-    curl -O --user joel.jacobson@datastax.com:Applemac1! -L http://downloads.datastax.com/enterprise/dse.tar.gz
+    curl -O --user email:password -L http://downloads.datastax.com/enterprise/dse.tar.gz
     fi
 
     # check if opscenter is present
