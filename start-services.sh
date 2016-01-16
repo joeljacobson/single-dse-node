@@ -34,7 +34,7 @@ NODE_OPTS=$1
     # check if cassandra is present
     if [ ! -f dse.tar.gz ] ; then
     echo "dse $VERSION not found, downloading now..."
-    curl -O --user joel.jacobson@datastax.com:Applemac1! -L http://downloads.datastax.com/enterprise/dse.tar.gz
+    curl -O --user user:pass -L http://downloads.datastax.com/enterprise/dse.tar.gz
     fi
 
     # check if opscenter is present
@@ -52,7 +52,7 @@ NODE_OPTS=$1
     # check if dse has been unpacked
     if [ ! -d dse-$VERSION ] ; then
     echo "unpacking dse-$VERSION"
-    tar xvf dse.tar.gz
+    pv dse.tar.gz| tar xzf -
     fi
 
 # check if cassandra is running
@@ -75,8 +75,8 @@ then
 read -r -p "are you okay to lose your data? [y/N]" response
 if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]]
 then
-sudo su root -c "rm -rf /var/lib/cassandra/"
-sudo su root -c "rm opscenter-5.2.3/conf/clusters/*"
+sudo su root -c "rm -rf /var/lib/cassandra/ &> /dev/null"
+sudo su root -c "rm opscenter-5.2.3/conf/clusters/ &> /dev/null"
 echo 'data deleted...'
 else
 echo 'quitting...'
