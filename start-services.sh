@@ -34,7 +34,7 @@ NODE_OPTS=$1
     # check if cassandra is present
     if [ ! -f dse.tar.gz ] ; then
     echo "dse $VERSION not found, downloading now..."
-    curl -O --user email:password -L http://downloads.datastax.com/enterprise/dse.tar.gz
+    curl -O --user joel.jacobson@datastax.com:Applemac1! -L http://downloads.datastax.com/enterprise/dse.tar.gz
     fi
 
     # check if opscenter is present
@@ -61,8 +61,10 @@ then
 read -r -p "cassandra is running, do you wish to kill? [y/N]" response
 if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]]
 then
-sudo -i ps -ef | grep 'cassandra' | grep -v grep | awk '{print $2}' | xargs kill | echo 'okay, cassandra was killed...'
+sudo su root -c "ps -ef | grep 'cassandra' | grep -v grep | awk '{print $2}' | xargs kill | echo 'okay, cassandra was killed...'"
 sleep 3
+else
+exit 1
 fi
 fi
 
@@ -73,23 +75,36 @@ then
 read -r -p "are you okay to lose your data? [y/N]" response
 if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]]
 then
-sudo -i rm -rf /var/lib/cassandra/
+sudo su root -c "rm -rf /var/lib/cassandra/"
+sudo su root -c "rm opscenter-5.2.3/conf/clusters/*"
 echo 'data deleted...'
+else
+echo 'quitting...'
+exit 1
 fi
 fi
 
 # start cassandra
 echo 'starting cassandra'
-sudo -i dse-$VERSION/bin/dse cassandra $NODE_OPTS &> /dev/null
+sudo su root -c "dse-$VERSION/bin/dse cassandra $NODE_OPTS &> /dev/null"
 sleep 3
 
 # start datastax agent
+if ps aux | grep -v grep | datastax &> /dev/null
+then
+echo 'agent running'
+else
 echo 'starting datastax-agent'
-sudo -i datastax-agent-$AGENT/bin/datastax-agent &> /dev/null
+datastax-agent-$AGENT/bin/datastax-agent &> /dev/null
 sleep 3
+fi
 
-# start opscenter
+if ps aux | grep -v grep | opscenter &> /dev/null
+then
+echo 'opscenter running...'
+else
 echo 'starting opscenter'
-sudo -i opscenter-$OPSCENTER/bin/opscenter &> /dev/null
+opscenter-$OPSCENTER/bin/opscenter &> /dev/null
 sleep 3
 echo 'opscenter is on http://127.0.0.1:8888'
+fi
